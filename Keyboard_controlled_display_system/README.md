@@ -1,101 +1,95 @@
-🔢 Keypad & LCD Interface with Arduino
-This project demonstrates interfacing a 4x4 Matrix Keypad and a 16x2 LCD with an Arduino UNO to display the key pressed. When any key on the keypad is pressed, its value is shown on the LCD screen.
+# 🔢 Keypad-Controlled LCD Display using Arduino
 
-📷 Project Preview
+This project demonstrates how to interface a **4x4 Matrix Keypad** with a **16x2 LCD Display** using an **Arduino Uno**. The pressed key is displayed on the LCD in real-time, making it a simple and interactive input/output system.
 
-🧰 Components Used
-Component	Quantity
-Arduino UNO	1
-4x4 Matrix Keypad	1
-16x2 LCD Display	1
-Potentiometer (10kΩ)	1
-Breadboard	1
-Jumper Wires	As needed
-USB Cable	1
+## 🧠 Project Objective
 
-🔌 Circuit Connections
-LCD (16x2) to Arduino:
-LCD Pin	Function	Arduino Pin
-VSS	GND	GND
-VDD	+5V	5V
-VO	Contrast (via pot)	Center Pin of Pot
-RS	Register Select	Pin 12
-RW	Read/Write	GND
-E	Enable	Pin 11
-D4	Data Bit 4	Pin 5
-D5	Data Bit 5	Pin 4
-D6	Data Bit 6	Pin 3
-D7	Data Bit 7	Pin 2
-A/K	Backlight	+5V / GND
+To develop a system where the user can press any key on a 4x4 keypad, and the corresponding character is instantly displayed on a 16x2 LCD.
 
-Keypad to Arduino:
-Keypad Pin	Arduino Pin
-Row 1	A0
-Row 2	A1
-Row 3	A2
-Row 4	A3
-Col 1	A4
-Col 2	A5
-Col 3	6
-Col 4	7
+---
 
-🧠 Working Principle
-A 4x4 matrix keypad has 16 keys arranged in rows and columns.
+## ⚙️ Components Used
 
-When a key is pressed, the row and column get connected.
+| Component            | Quantity |
+|----------------------|----------|
+| Arduino Uno          | 1        |
+| 16x2 LCD Display     | 1        |
+| 4x4 Matrix Keypad    | 1        |
+| 10k Potentiometer    | 1        |
+| Breadboard           | 1        |
+| Jumper Wires         | As needed |
+| USB Cable            | 1        |
 
-Arduino scans each row and checks which column shows a signal.
+---
 
-The pressed key is identified using a keymap and displayed on the LCD.
+## 🔌 Circuit Connections
 
-LCD shows "Press a Key:" on startup and then displays the pressed key on the second line.
+### LCD to Arduino:
+- RS → Pin 12  
+- Enable → Pin 11  
+- D4 → Pin 5  
+- D5 → Pin 4  
+- D6 → Pin 3  
+- D7 → Pin 2  
+- VSS → GND  
+- VDD → 5V  
+- V0 → Center pin of Potentiometer  
+- RW → GND  
+- A → 5V  
+- K → GND  
 
-📟 Code Explanation
-Uses Keypad.h library for scanning keys.
+### Keypad to Arduino:
+- Row 1 → A0  
+- Row 2 → A1  
+- Row 3 → A2  
+- Row 4 → A3  
+- Col 1 → A4  
+- Col 2 → A5  
+- Col 3 → Pin 6  
+- Col 4 → Pin 7  
 
-Uses LiquidCrystal.h for LCD interfacing.
+### Potentiometer:
+- One side → GND  
+- Other side → 5V  
+- Middle (wiper) → LCD V0 (contrast control)
 
-lcd.begin(16,2) initializes the LCD.
+---
 
-keypad.getKey() checks for keypress.
+## 🧾 Arduino Code
 
-Detected key is displayed using lcd.print().
+```cpp
+#include<LiquidCrystal.h>
+#include<Keypad.h>
 
-📌 Applications
-Can be used in Password-protected systems.
+// LCD Configuration
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-Basic input systems in menu navigation.
+// Keypad Configuration
+const byte ROWS = 4;
+const byte COLS = 4;
 
-Useful in digital locks or voting machines.
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
 
-Acts as a foundation for ATM simulation projects.
+byte rowPins[ROWS] = {A0,A1,A2,A3};
+byte colPins[COLS] = {A4,A5,6,7};
 
-📝 How to Upload
-Open Arduino IDE.
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-Select board: Arduino UNO.
+void setup(){
+  lcd.begin(16, 2);
+  lcd.print("Press a Key:");
+}
 
-Connect via USB and select correct COM port.
-
-Paste the provided code and upload.
-
-💡 Future Improvements
-Add password functionality.
-
-Integrate buzzer or LEDs for feedback.
-
-Store keypress history using EEPROM.
-
-📂 Folder Structure
-Copy
-Edit
-Keypad_LCD_Project/
-├── images/
-│   └── circuit_diagram.png
-├── keypad_lcd.ino
-└── README.md
-📎 Libraries Required
-Keypad
-
-LiquidCrystal
-
+void loop(){
+  char key = keypad.getKey();
+  if(key){
+    lcd.setCursor(0, 1);
+    lcd.print("Key : ");
+    lcd.print(key);
+  }
+}
